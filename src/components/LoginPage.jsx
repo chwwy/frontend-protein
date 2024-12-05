@@ -10,39 +10,28 @@ const LoginPage = () => {
 	const [password, setPassword] = useState("");
 
 
-	/*
-	api : http://localhost:3987/admin/create
 
-	payload request:
-		{
-			"username" : "user test",
-			"password" : "telkomUniversity@kemenkes.61224"
-		}
-	*/
-	const handleSubmit = async () => {
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
 		try {
-
-			const response = await fetch("http://localhost:3987/admin/create", {
+			const response = await fetch("http://localhost:3987/admin/login", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
 					username,
-					password,
+					password
 				}),
 			});
 
 			const data = await response.json();
 			console.log(data);
-
 		} catch (error) {
 			console.log(error);
 		}
-
-	}
-
-
+	};
 
 
 
