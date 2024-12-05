@@ -24,7 +24,6 @@ const DashboardContent = () => {
                     <div key={index} className="bg-white shadow-sm rounded-lg p-6">
                         <h3 className="text-gray-600 font-medium">{item.title}</h3>
                         <h1 className="text-3xl font-bold my-2">{item.value}</h1>
-                        <p className="text-sm text-gray-500">Terakhir di-update: 10 menit yang lalu</p>
                     </div>
                 ))}
             </div>

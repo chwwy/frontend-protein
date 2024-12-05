@@ -4,6 +4,9 @@ import ScrollToTop from "../components/ScrollToTop";
 import DashboardView from "../views/DashboardView";
 import PeminjamanRuanganView from "../views/PeminjamanRuanganView";
 import PeminjamanBarangView from "../views/PeminjamanBarangView";
+import LoginPageView from "../views/LoginPageView";
+import AdminView from "../views/AdminView";
+import PengembalianBarangView from "../views/PengembalianBarangView";
 
 const ScrollWrapper = ({ children }) => (
     <>
@@ -13,6 +16,14 @@ const ScrollWrapper = ({ children }) => (
 );
 
 const router = createBrowserRouter([
+    {
+        path: "/",
+        element: (
+            <ScrollWrapper>
+                <LoginPageView />
+            </ScrollWrapper>
+        )
+    },
     {
         path: "/dashboard",
         element: (
@@ -34,6 +45,22 @@ const router = createBrowserRouter([
         element: (
             <ScrollWrapper>
                 <PeminjamanBarangView />
+            </ScrollWrapper>
+        )
+    },
+    {
+        path: "/dashboard-admin",
+        element: (
+            <ScrollWrapper>
+                <AdminView />
+            </ScrollWrapper>
+        )
+    },
+    {
+        path: "/pengembalian-barang",
+        element: (
+            <ScrollWrapper>
+                <PengembalianBarangView />
             </ScrollWrapper>
         )
     },

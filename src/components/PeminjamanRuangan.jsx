@@ -32,14 +32,8 @@ const FormPeminjamanRuangan = () => {
                            {label: 'Tanggal Peminjaman', type: 'date'},
                            {label: 'Waktu Peminjaman', type: 'time'},
                            {
-                               label: 'Durasi Peminjaman',
-                               type: 'select',
-                               options: [
-                                   {value: '', label: 'Pilih Durasi'},
-                                   {value: '1', label: '1 Jam'},
-                                   {value: '2', label: '2 Jam'},
-                                   {value: '3', label: '3 Jam'}
-                               ]
+                               label: 'Durasi Peminjaman (jam)',
+                               type: 'number',
                            },
                            {
                                label: 'Ruangan',
