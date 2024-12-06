@@ -36,9 +36,7 @@ const router = createBrowserRouter([
         path: "/peminjaman-ruangan",
         element: (
             <ScrollWrapper>
-                <ProtectedRoute>
-                    <PeminjamanRuanganView />
-                </ProtectedRoute>
+                <PeminjamanRuanganView />
             </ScrollWrapper>
         )
     },
@@ -46,9 +44,7 @@ const router = createBrowserRouter([
         path: "/peminjaman-barang",
         element: (
             <ScrollWrapper>
-                <ProtectedRoute>
-                    <PeminjamanBarangView />
-                </ProtectedRoute>
+                <PeminjamanBarangView />
             </ScrollWrapper>
         )
     },
@@ -66,9 +62,7 @@ const router = createBrowserRouter([
         path: "/pengembalian-barang",
         element: (
             <ScrollWrapper>
-                <ProtectedRoute>
-                    <PengembalianBarangView />
-                </ProtectedRoute>
+                <PengembalianBarangView />
             </ScrollWrapper>
         )
     },
