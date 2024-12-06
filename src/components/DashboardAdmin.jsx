@@ -1,13 +1,14 @@
 import React, { useState } from "react";
+import { BsHouseDoor, BsBox2, BsArrowReturnLeft } from "react-icons/bs";
 import TitlePage from "../partials/TitlePage.jsx";
 
 const DashboardContent = () => {
   const [activeTab, setActiveTab] = useState("room");
 
   const statsData = [
-    { title: "Ruangan Tersedia", value: "40", icon: "bi-house-door" },
-    { title: "Barang Tersedia", value: "211", icon: "bi-box" },
-    { title: "Barang yang Dikembalikan", value: "25", icon: "bi-arrow-return-left" },
+    { title: "Ruangan Tersedia", value: "40", icon: <BsHouseDoor /> },
+    { title: "Barang Tersedia", value: "211", icon: <BsBox2 /> },
+    { title: "Barang yang Dikembalikan", value: "25", icon: <BsArrowReturnLeft /> },
   ];
 
   const tableHeaders = {
@@ -23,7 +24,10 @@ const DashboardContent = () => {
         {statsData.map((item, index) => (
           <div key={index} className="bg-white shadow-sm rounded-lg p-6">
             <h3 className="text-gray-600 font-medium">{item.title}</h3>
-            <h1 className="text-3xl font-bold my-2">{item.value}</h1>
+            <h1 className="text-3xl font-bold my-2 flex items-center justify-between">
+              <span>{item.value}</span>
+              <span className="flex items-center">{item.icon}</span>
+            </h1>
           </div>
         ))}
       </div>

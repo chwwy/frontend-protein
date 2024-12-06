@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-
 import ScrollToTop from "../components/ScrollToTop";
 import DashboardView from "../views/DashboardView";
 import PeminjamanRuanganView from "../views/PeminjamanRuanganView";
@@ -7,6 +6,7 @@ import PeminjamanBarangView from "../views/PeminjamanBarangView";
 import LoginPageView from "../views/LoginPageView";
 import AdminView from "../views/AdminView";
 import PengembalianBarangView from "../views/PengembalianBarangView";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 const ScrollWrapper = ({ children }) => (
     <>
@@ -36,7 +36,9 @@ const router = createBrowserRouter([
         path: "/peminjaman-ruangan",
         element: (
             <ScrollWrapper>
-                <PeminjamanRuanganView />
+                <ProtectedRoute>
+                    <PeminjamanRuanganView />
+                </ProtectedRoute>
             </ScrollWrapper>
         )
     },
@@ -44,7 +46,9 @@ const router = createBrowserRouter([
         path: "/peminjaman-barang",
         element: (
             <ScrollWrapper>
-                <PeminjamanBarangView />
+                <ProtectedRoute>
+                    <PeminjamanBarangView />
+                </ProtectedRoute>
             </ScrollWrapper>
         )
     },
@@ -52,7 +56,9 @@ const router = createBrowserRouter([
         path: "/dashboard-admin",
         element: (
             <ScrollWrapper>
-                <AdminView />
+                <ProtectedRoute>
+                    <AdminView />
+                </ProtectedRoute>
             </ScrollWrapper>
         )
     },
@@ -60,7 +66,9 @@ const router = createBrowserRouter([
         path: "/pengembalian-barang",
         element: (
             <ScrollWrapper>
-                <PengembalianBarangView />
+                <ProtectedRoute>
+                    <PengembalianBarangView />
+                </ProtectedRoute>
             </ScrollWrapper>
         )
     },
