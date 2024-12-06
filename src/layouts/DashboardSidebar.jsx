@@ -39,8 +39,8 @@ const DashboardSidebar = () => {
                         <div className="flex items-center p-2 cursor-pointer justify-between" 
                             onClick={() => setOpenMenu(openMenu === 1 ? null : 1)}>
                             <div className="flex items-center">
-                                <MdOutlineMeetingRoom size={24} className="text-gray-600" />
-                                <span className="ml-4 text-gray-700">Ruangan</span>
+                                <MdOutlineInbox size={24} className="text-gray-600" />
+                                <span className="ml-4 text-gray-700">Barang</span>
                             </div>
                             <i className={`bi bi-caret-right-fill text-gray-600 transition-transform ${openMenu === 1 ? 'rotate-90' : ''}`} />
                         </div>
@@ -59,7 +59,7 @@ const DashboardSidebar = () => {
                         <div className="flex items-center p-2 cursor-pointer justify-between"
                             onClick={() => setOpenMenu(openMenu === 2 ? null : 2)}>
                             <div className="flex items-center">
-                                <MdOutlineInbox size={24} className="text-gray-600" />
+                                <MdOutlineMeetingRoom size={24} className="text-gray-600" />
                                 <span className="ml-4 text-gray-700">Ruangan</span>
                             </div>
                             <i className={`bi bi-caret-right-fill text-gray-600 transition-transform ${openMenu === 2 ? 'rotate-90' : ''}`} />

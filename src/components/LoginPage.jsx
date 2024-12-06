@@ -29,7 +29,7 @@ const LoginPage = () => {
 
             if (response.ok) {
                 localStorage.setItem('token', data.token);
-                await login(data);  // Update auth context
+                await login(data); 
                 navigate("/dashboard-admin");
             } else {
                 setError(data.message);
