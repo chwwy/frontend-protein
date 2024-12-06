@@ -11,6 +11,7 @@ const LoginPage = () => {
     const navigate = useNavigate();
 
 
+<<<<<<< HEAD
 	const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -25,6 +26,31 @@ const LoginPage = () => {
                 }),
             });
             const data = await response.json();
+=======
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
+		try {
+			const response = await fetch("http://localhost:3987/admin/login", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					username,
+					password
+				}),
+			});
+
+			const data = await response.json();
+			console.log(data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+>>>>>>> 45562d93c0d8cdec59be6f1566a5f8c86c503530
 
             if (response.ok) {
                 navigate("/dashboard");
