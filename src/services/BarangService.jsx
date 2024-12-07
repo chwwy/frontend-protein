@@ -178,5 +178,37 @@ export const BarangService = {
                 message: error.message || 'Terjadi kesalahan saat mengambil data peminjaman.'
             };
         }
-    }
+    },
+    
+    deleteBarang: async (id) => {
+        try {
+            const url = `${apiUrl}/barang/${id}`;
+            console.log('Deleting barang with ID:', id);
+
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            const data = await response.json();
+
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw {
+                    status: response.status,
+                    message: data.message || 'Terjadi kesalahan saat menghapus barang.'
+                };
+            }
+
+            return { success: true, message: data.message };
+        } catch (error) {
+            console.error('API Error:', error);
+            throw {
+                status: error.status || 500,
+                message: error.message || 'Terjadi kesalahan saat menghapus barang.'
+            };
+        }
+    },
 };

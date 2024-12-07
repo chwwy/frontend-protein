@@ -68,6 +68,9 @@ const DashboardSidebar = () => {
                             <p className="p-2 cursor-pointer text-gray-600 text-sm">
                                 <Link to="/peminjaman-ruangan">Peminjaman Ruangan</Link>
                             </p>
+                            <p className="p-2 cursor-pointer text-gray-600 text-sm">
+                                <Link to="/jadwal-ruangan">Jadwal Ruangan</Link>
+                            </p>
                         </div>
                     </div>
                 </nav>
