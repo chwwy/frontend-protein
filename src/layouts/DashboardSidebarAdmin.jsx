@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import HomeLogo from '../assets/Logo Kemenkes.png';
-import { MdOutlineSpaceDashboard, MdOutlineLogin, MdOutlineAdminPanelSettings } from "react-icons/md";
+import { useAuth } from '../services/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { MdOutlineSpaceDashboard, MdOutlineLogin, MdOutlineInbox, MdInfoOutline } from "react-icons/md";
 
 const DashboardSidebar = () => {
    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+   const [openMenu, setOpenMenu] = useState(null);
+   const { logout } = useAuth();
+   const navigate = useNavigate();
+
+   const handleLogout = () => {
+    logout();
+    navigate('/');
+    };
 
    return (
        <>
@@ -33,23 +43,59 @@ const DashboardSidebar = () => {
                         </div>
                     </div>
 
-
-                    <div className="flex items-center p-2 cursor-pointer justify-between">
+                    <div>
+                        <div className="flex items-center p-2 cursor-pointer justify-between" 
+                            onClick={() => setOpenMenu(openMenu === 1 ? null : 1)}>
                             <div className="flex items-center">
-                                <MdOutlineAdminPanelSettings size={24} className="text-gray-600" />
-                                <span className="ml-4 text-gray-700">
-                                    <Link to="/dashboard/manage-admin">Manage Admin</Link>
-                                </span>
+                                <MdOutlineInbox size={24} className="text-gray-600" />
+                                <span className="ml-4 text-gray-700">Manage</span>
                             </div>
+                            <i className={`bi bi-caret-right-fill text-gray-600 transition-transform ${openMenu === 1 ? 'rotate-90' : ''}`} />
+                        </div>
+                        <div className={`ml-8 mt-2 space-y-2 ${openMenu === 1 ? 'block' : 'hidden'}`}>
+                            <p className="p-2 cursor-pointer text-gray-600 text-sm">
+                                <Link to="/dashboard/manage-barang">Barang</Link>
+                            </p>
+                            <p className="p-2 cursor-pointer text-gray-600 text-sm">
+                                <Link to="/dashboard/manage-ruangan">Ruangan</Link>
+                            </p>
+                            <p className="p-2 cursor-pointer text-gray-600 text-sm">
+                                <Link to="/dashboard/manage-admin">Admin</Link>
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="flex items-center p-2 cursor-pointer justify-between">
+                    <div>
+                        <div className="flex items-center p-2 cursor-pointer justify-between" 
+                            onClick={() => setOpenMenu(openMenu === 2 ? null : 2)}>
                             <div className="flex items-center">
-                                <MdOutlineLogin size={24} className="text-gray-600" />
-                                <span className="ml-4 text-gray-700">
-                                    <Link to="/">Login</Link>
-                                </span>
+                                <MdInfoOutline size={24} className="text-gray-600" />
+                                <span className="ml-4 text-gray-700">Log Peminjaman</span>
                             </div>
+                            <i className={`bi bi-caret-right-fill text-gray-600 transition-transform ${openMenu === 2 ? 'rotate-90' : ''}`} />
+                        </div>
+                        <div className={`ml-8 mt-2 space-y-2 ${openMenu === 2 ? 'block' : 'hidden'}`}>
+
+                            <p className="p-2 cursor-pointer text-gray-600 text-sm">
+                                <Link to="/dashboard/log-barang">Barang</Link>
+                            </p>
+                            <p className="p-2 cursor-pointer text-gray-600 text-sm">
+                                <Link to="/dashboard/log-ruangan">Ruangan</Link>
+                            </p>
+                        </div>
+                    </div>
+
+
+                    <div 
+                        className="flex items-center p-2 cursor-pointer justify-between"
+                        onClick={handleLogout}
+                    >
+                        <div className="flex items-center">
+                            <MdOutlineLogin size={24} className="text-gray-600" />
+                            <span className="ml-4 text-gray-700">
+                                Logout
+                            </span>
+                        </div>
                     </div>
                </nav>
            </aside>

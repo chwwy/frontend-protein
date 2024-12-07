@@ -7,6 +7,12 @@ import LoginPageView from "../views/LoginPageView";
 import AdminView from "../views/AdminView";
 import PengembalianBarangView from "../views/PengembalianBarangView";
 import ProtectedRoute from "../components/ProtectedRoute";
+import ManageBarangView from "../views/ManageBarangView";
+import ManageRuanganView from "../views/ManageRuanganView";
+import ManageAdminView from "../views/ManageAdminView";
+import LogBarangView from "../views/LogBarangView";
+import LogRuanganView from "../views/LogRuanganView";
+
 
 const ScrollWrapper = ({ children }) => (
     <>
@@ -63,6 +69,56 @@ const router = createBrowserRouter([
         element: (
             <ScrollWrapper>
                 <PengembalianBarangView />
+            </ScrollWrapper>
+        )
+    },
+    {
+        path: "/dashboard/manage-barang",
+        element: (
+            <ScrollWrapper>
+                <ProtectedRoute>
+                    <ManageBarangView />
+                </ProtectedRoute>
+            </ScrollWrapper>
+        )
+    },
+    {
+        path: "/dashboard/manage-ruangan",
+        element: (
+            <ScrollWrapper>
+                <ProtectedRoute>
+                    <ManageRuanganView/>
+                </ProtectedRoute>
+            </ScrollWrapper>
+        )
+    },
+    {
+        path: "/dashboard/manage-admin",
+        element: (
+            <ScrollWrapper>
+                <ProtectedRoute>
+                    <ManageAdminView/>
+                </ProtectedRoute>
+            </ScrollWrapper>
+        )
+    },
+    {
+        path: "/dashboard/log-barang",
+        element: (
+            <ScrollWrapper>
+                <ProtectedRoute>
+                    <LogBarangView/>
+                </ProtectedRoute>
+            </ScrollWrapper>
+        )
+    },
+    {
+        path: "/dashboard/log-ruangan",
+        element: (
+            <ScrollWrapper>
+                <ProtectedRoute>
+                    <LogRuanganView/>
+                </ProtectedRoute>
             </ScrollWrapper>
         )
     },

@@ -26,13 +26,18 @@ const LoginPage = () => {
                 }),
             });
             const data = await response.json();
-
+    
             if (response.ok) {
-                localStorage.setItem('token', data.token);
-                await login(data); 
+                await login({
+                    token: data.admin.token,
+                    admin: {
+                        id: data.admin._id,
+                        username: data.admin.username
+                    }
+                });
                 navigate("/dashboard-admin");
             } else {
-                setError(data.message);
+                setError(data.message || "Login failed");
             }
         } catch (error) {
             console.error(error);
