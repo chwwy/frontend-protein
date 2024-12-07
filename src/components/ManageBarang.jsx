@@ -1,55 +1,41 @@
-import { useState } from 'react';
-import { AdminService } from '../services/AdminService';
+import React, { useState } from "react";
+import BarcodeScannerComponent from "react-qr-barcode-scanner";
+import { BarangService } from '../services/BarangService';
 
-export default function ManageAdmin() {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    confirmPassword: ''
-  });
-  
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+const ManageBarang = () => {
   const [showModal, setShowModal] = useState(false);
+  const [scannedData, setScannedData] = useState(null);
+  const [scanActive, setScanActive] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: "", type: "" });
+  const [formData, setFormData] = useState({
+    codeBarang: "",
+    name: ""
+  });
 
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.username.trim()) {
-      newErrors.username = 'Username harus diisi';
-    } else if (formData.username.length < 3) {
-      newErrors.username = 'Username minimal 3 karakter';
+  const handleScan = (err, result) => {
+    if (result) {
+      setScannedData(result.text);
+      setScanActive(false);
+      setFormData(prev => ({
+        ...prev,
+        codeBarang: result.text
+      }));
+    } else if (err) {
+      console.error("Scan Error:", err);
     }
-
-    if (!formData.password) {
-      newErrors.password = 'Password harus diisi';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password minimal 6 karakter';
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Konfirmasi password harus diisi';
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Password tidak cocok';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setShowModal(true);
   };
 
   const showNotification = (message, type) => {
@@ -59,30 +45,24 @@ export default function ManageAdmin() {
     }, 3000);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-    setShowModal(true);
-  };
-
   const handleConfirm = async () => {
-    setLoading(true);
     try {
-      const { username, password } = formData;
-      await AdminService.createAdmin({ username, password });
+      await BarangService.createBarang(formData);
       
       setFormData({
-        username: '',
-        password: '',
-        confirmPassword: ''
+        codeBarang: "",
+        name: ""
       });
+      setScannedData(null);
       setShowModal(false);
-      showNotification("Admin berhasil ditambahkan!", "success");
+      showNotification("Barang berhasil ditambahkan!", "success");
     } catch (error) {
       setShowModal(false);
-      showNotification(error.message || "Terjadi kesalahan saat membuat admin.", "error");
-    } finally {
-      setLoading(false);
+      if (error.status === 400) {
+        showNotification("Barang sudah ada.", "error");
+      } else {
+        showNotification("Terjadi kesalahan.", "error");
+      }
     }
   };
 
@@ -98,71 +78,67 @@ export default function ManageAdmin() {
       )}
 
       <div className="flex flex-col items-center p-4 md:p-8">
+        <div className="w-full max-w-md mb-8">
+          {!scanActive ? (
+            <button
+              onClick={() => setScanActive(true)}
+              className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB] text-white"
+            >
+              Start Scan
+            </button>
+          ) : (
+            <div className="border rounded-lg overflow-hidden">
+              <BarcodeScannerComponent
+                width={300}
+                height={300}
+                onUpdate={handleScan}
+              />
+            </div>
+          )}
+
+          {scannedData && (
+            <div className="mt-4 p-4 bg-white rounded-lg">
+              <p className="font-medium">Scanned Barcode:</p>
+              <p className="text-gray-600">{scannedData}</p>
+            </div>
+          )}
+        </div>
+
         <div className="w-full max-w-4xl bg-white rounded-lg shadow-sm p-6 md:p-8">
           <h2 className="text-xl font-semibold mb-8 text-gray-800">
-            Form Tambah Admin
+            Form Tambah Barang
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-3">
-                  Username
+                  Kode Barang
                 </label>
                 <input
                   type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  placeholder="Masukkan username..."
-                  className={`w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 ${
-                    errors.username ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  disabled={loading}
+                  name="codeBarang"
+                  value={formData.codeBarang}
+                  onChange={handleInputChange}
+                  placeholder="Scan barcode..."
+                  className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+                  required
+                  readOnly
                 />
-                {errors.username && (
-                  <p className="mt-1 text-sm text-red-500">{errors.username}</p>
-                )}
               </div>
-
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-3">
-                  Password
+                  Nama Barang
                 </label>
                 <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Masukkan password..."
-                  className={`w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 ${
-                    errors.password ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  disabled={loading}
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Nama barang..."
+                  className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+                  required
                 />
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-500">{errors.password}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-3">
-                  Konfirmasi Password
-                </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="Konfirmasi password..."
-                  className={`w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 ${
-                    errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  disabled={loading}
-                />
-                {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-500">{errors.confirmPassword}</p>
-                )}
               </div>
             </div>
 
@@ -171,11 +147,10 @@ export default function ManageAdmin() {
                 type="reset"
                 onClick={() => {
                   setFormData({
-                    username: '',
-                    password: '',
-                    confirmPassword: ''
+                    codeBarang: "",
+                    name: ""
                   });
-                  setErrors({});
+                  setScannedData(null);
                 }}
                 className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB40] text-[#1ABCCB]"
               >
@@ -184,7 +159,7 @@ export default function ManageAdmin() {
               <button
                 type="submit"
                 className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB] text-white"
-                disabled={loading}
+                disabled={!formData.codeBarang}
               >
                 Submit
               </button>
@@ -199,7 +174,7 @@ export default function ManageAdmin() {
             <div className="text-center">
               <i className="bi bi-bell-fill text-4xl text-gray-800 mb-4"></i>
               <h3 className="text-xl font-semibold mb-6">
-                Konfirmasi Tambah Admin?
+                Konfirmasi Tambah Barang?
               </h3>
               <div className="flex justify-center space-x-4">
                 <button
@@ -221,4 +196,6 @@ export default function ManageAdmin() {
       )}
     </main>
   );
-}
+};
+
+export default ManageBarang;

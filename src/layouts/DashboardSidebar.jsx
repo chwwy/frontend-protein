@@ -17,8 +17,13 @@ const DashboardSidebar = () => {
                ${isSidebarOpen ? 'left-0' : '-left-[300px]'}`}>
                
                <div className="flex items-center justify-between p-4 mr-8 font-semibold">
-                   <img src={HomeLogo} alt="Logo" className="h-14 pl-3" />
-                   <h1 className="text-2xl text-[#0CB9AC]">RoomCare</h1>
+                   <Link to="/">
+                        <img src={HomeLogo} alt="Logo" className="h-14 pl-3" />
+                   </Link>
+                   <Link to="/">
+                        <h1 className="text-2xl text-[#0CB9AC]">RoomCare</h1>
+                   </Link>
+                   
                </div>
 
                <nav className="mt-16 ml-12 space-y-4 mr-5">
