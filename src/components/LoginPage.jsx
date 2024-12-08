@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import Kemenkes from "../assets/kemenkes.png";
 import { useAuth } from '../services/AuthContext';
+import authService from '../services/AuthService';
 
 const LoginPage = () => {
     const [username, setUsername] = useState("");
@@ -12,36 +13,14 @@ const LoginPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(""); 
+        setError("");
         
         try {
-            const response = await fetch("http://localhost:3987/admin/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    username,
-                    password,
-                }),
-            });
-            const data = await response.json();
-    
-            if (response.ok) {
-                await login({
-                    token: data.admin.token,
-                    admin: {
-                        id: data.admin._id,
-                        username: data.admin.username
-                    }
-                });
-                navigate("/dashboard-admin");
-            } else {
-                setError(data.message || "Login failed");
-            }
+            const userData = await authService.login(username, password);
+            await login(userData);
+            navigate("/dashboard-admin");
         } catch (error) {
-            console.error(error);
-            setError("An error occurred during login");
+            setError(error.message);
         }
     };
 
