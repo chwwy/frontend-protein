@@ -1,201 +1,121 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import TitlePage from '../partials/TitlePage.jsx';
+import React, { useState, useEffect } from 'react';
+import { PeminjamanBarangService } from '../services/PeminjamanBarangService';
 
 const PeminjamanList = () => {
   const [peminjamanData, setPeminjamanData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const limit = 15;
 
   useEffect(() => {
-    const fetchPeminjaman = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:3987/peminjaman?page=${page}`);
-        const data = await response.json();
-        
-        if (data.peminjaman) {
-          setPeminjamanData(data.peminjaman);
-        }
+        const response = await PeminjamanBarangService.getAllPeminjaman(page, limit);
+        setPeminjamanData(response.data.peminjaman || []);
       } catch (err) {
-        setError('Gagal memuat data peminjaman');
-        console.error(err);
+        setError(err.message || 'Failed to fetch data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPeminjaman();
+    fetchData();
   }, [page]);
 
-  // Filter data based on search query
-  const filteredData = useMemo(() => {
-    if (!searchQuery) return peminjamanData;
-
-    return peminjamanData.filter(item => 
-      item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.barangId?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.status?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.keterangan?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [peminjamanData, searchQuery]);
-
   const formatDate = (dateString) => {
-    try {
-      const date = new Date(dateString);
-      date.setHours(date.getHours());
-      
-      if (isNaN(date.getTime())) {
-        return 'Invalid Date';
-      }
-      
-      return date.toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      });
-    } catch {
-      return 'Invalid Date';
-    }
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
   };
 
-  // Mobile card view component
-  const PeminjamanCard = ({ item }) => (
-    <div className="bg-white p-4 rounded-lg shadow-sm mb-4 border border-gray-100">
-      <div className="grid grid-cols-2 gap-2">
-        <div className="col-span-2">
-          <span className="text-gray-500 text-sm">Nama Barang:</span>
-          <p className="font-medium">{item.barangId?.name || 'N/A'}</p>
-        </div>
-        <div className="col-span-2">
-          <span className="text-gray-500 text-sm">Peminjam:</span>
-          <p className="font-medium">{item.name || 'N/A'}</p>
-        </div>
-        <div className="col-span-2">
-          <span className="text-gray-500 text-sm">Tanggal Pinjam:</span>
-          <p className="font-medium">{formatDate(item.createdAt)}</p>
-        </div>
-        <div className="col-span-2">
-          <span className="text-gray-500 text-sm">Keterangan:</span>
-          <p className="font-medium">{item.keterangan || 'N/A'}</p>
-        </div>
-        <div className="col-span-2">
-          <span className="text-gray-500 text-sm">Status:</span>
-          <span className={`inline-block px-3 py-1 rounded-full text-sm ${
-            item.status === 'Selesai' 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-blue-100 text-blue-800'
-          }`}>
-            {item.status}
-          </span>
-        </div>
-        <div className="col-span-2 text-xs text-gray-400">
-          ID: {item._id}
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <main className="flex-1 lg:ml-[300px] p-4 md:p-8 transition-all duration-500 bg-gray-100 min-h-screen">
-      <div className="bg-white shadow-sm rounded-lg p-4 md:p-6">
-        <h2 className="text-xl font-semibold text-center mb-6">
-          Daftar Peminjaman Barang
-        </h2>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-6">Daftar Peminjaman</h1>
 
-        {/* Search input */}
-        <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Cari berdasarkan nama barang, peminjam, status..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+      {loading ? (
+        <div className="text-center py-8">
+          <div className="text-gray-600">Loading...</div>
         </div>
-        
-        {loading ? (
-          <div className="text-center py-4">Memuat data...</div>
-        ) : error ? (
-          <div className="text-center py-4 text-red-500">{error}</div>
-        ) : filteredData.length === 0 ? (
-          <div className="text-center py-4 text-gray-500">
-            {searchQuery ? 'Tidak ada hasil yang ditemukan' : 'Tidak ada data peminjaman'}
-          </div>
-        ) : (
-          <>
-            {/* Desktop view */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="text-left">
-                    <th className="py-2 px-4 text-gray-600">ID Peminjaman</th>
-                    <th className="py-2 px-4 text-gray-600">Kode Barang</th>
-                    <th className="py-2 px-4 text-gray-600">Nama Barang</th>
-                    <th className="py-2 px-4 text-gray-600">Peminjam</th>
-                    <th className="py-2 px-4 text-gray-600">Tanggal Pinjam</th>
-                    <th className="py-2 px-4 text-gray-600">Keterangan</th>
-                    <th className="py-2 px-4 text-gray-600">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredData.map((item) => (
-                    <tr key={item._id} className="border-t border-gray-100">
-                      <td className="py-2 px-4 text-gray-600">{item._id}</td>
-                      <td className="py-2 px-4 text-gray-600">{item.barangId?.codeBarang || 'N/A'}</td>
-                      <td className="py-2 px-4 text-gray-600">{item.barangId?.name || 'N/A'}</td>
-                      <td className="py-2 px-4 text-gray-600">{item.name || 'N/A'}</td>
-                      <td className="py-2 px-4 text-gray-600">
+      ) : error ? (
+        <div className="text-center py-8">
+          <div className="text-red-600">{error}</div>
+        </div>
+      ) : (
+        <>
+          <div className="overflow-x-auto bg-white rounded-lg shadow">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Nama Peminjam
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Barang
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tanggal Pinjam
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {peminjamanData.map((item) => (
+                  <tr key={item._id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                      <div className="text-sm text-gray-500">{item.division}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{item.barangId?.name}</div>
+                      <div className="text-sm text-gray-500">{item.barangId?.codeBarang}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
                         {formatDate(item.createdAt)}
-                      </td>
-                      <td className="py-2 px-4 text-gray-600">{item.keterangan}</td>
-                      <td className="py-2 px-4">
-                        <span className={`px-3 py-1 rounded-full text-sm ${
-                          item.status === 'Selesai' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {item.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        item.status === 'Selesai'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {item.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-            {/* Mobile view */}
-            <div className="md:hidden">
-              {filteredData.map((item) => (
-                <PeminjamanCard key={item._id} item={item} />
-              ))}
-            </div>
-          </>
-        )}
-        
-        <div className="mt-6 flex justify-between items-center px-2">
-          <button 
-            onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-            disabled={page === 1}
-            className="px-4 py-2 text-sm bg-gray-100 rounded text-gray-600 hover:bg-gray-200 disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="text-gray-600">Page {page}</span>
-          <button 
-            onClick={() => setPage(prev => prev + 1)}
-            disabled={filteredData.length === 0}
-            className="px-4 py-2 text-sm bg-gray-100 rounded text-gray-600 hover:bg-gray-200 disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      </div>
-    </main>
+          <div className="mt-4 flex justify-between items-center">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <span className="text-sm text-gray-700">Page {page}</span>
+            <button
+              onClick={() => setPage(p => p + 1)}
+              disabled={peminjamanData.length < limit}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </>
+      )}
+    </div>
   );
 };
 

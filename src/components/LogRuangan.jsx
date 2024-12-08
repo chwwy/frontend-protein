@@ -45,13 +45,13 @@ const LogRuangan = () => {
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
-      date.setHours(date.getHours());
+      date.setHours(date.getHours() - 7);
       
       if (isNaN(date.getTime())) {
         return 'Invalid Date';
       }
       
-      return date.toLocaleDateString({
+      return date.toLocaleDateString('id-ID',{
         day: 'numeric',
         month: 'long',
         year: 'numeric',
