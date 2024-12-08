@@ -51,7 +51,7 @@ const LogRuangan = () => {
         return 'Invalid Date';
       }
       
-      return date.toLocaleDateString('id-ID', {
+      return date.toLocaleDateString({
         day: 'numeric',
         month: 'long',
         year: 'numeric',
