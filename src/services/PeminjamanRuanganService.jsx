@@ -102,7 +102,7 @@ export const PeminjamanRuanganService = {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
-
+  
       return await handleResponse(response);
     } catch (error) {
       handleError(error);
@@ -134,24 +134,20 @@ export const PeminjamanRuanganService = {
   },
 
   startAutoStatusCheck: (ruanganId, onStatusChange) => {
-    // Initial check
     PeminjamanRuanganService.checkRuanganAvailable(ruanganId)
       .then(onStatusChange)
       .catch(console.error);
 
-    // Set up interval for periodic checks
     const intervalId = setInterval(() => {
       PeminjamanRuanganService.checkRuanganAvailable(ruanganId)
         .then(onStatusChange)
         .catch(console.error);
-    }, 60000); // Check every minute
+    }, 60000); 
 
-    // Return function to stop checking
     return () => clearInterval(intervalId);
   }
 };
 
-// Helper functions for consistent error handling
 const handleResponse = async (response) => {
   const contentType = response.headers.get('content-type');
   if (!contentType || !contentType.includes('application/json')) {

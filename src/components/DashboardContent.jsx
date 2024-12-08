@@ -225,7 +225,7 @@ const DashboardContent = () => {
                 activeTab === "room" ? "bg-white shadow-sm" : "bg-[#E6E5E7]"
                 }`}
             >
-                Ruangan
+                Ruangan 
             </button>
             <button
                 onClick={() => {
@@ -242,7 +242,7 @@ const DashboardContent = () => {
 
       <div className="bg-white shadow-sm rounded-lg p-6 mt-6">
       <h2 className="text-xl font-semibold text-center mb-4">
-            Status {activeTab === "room" ? "Ruangan" : "Barang"}
+            Status {activeTab === "room" ? "Ruangan (cek jadwal untuk detail)" : "Barang"}
             </h2>
 
             <div className="mb-6">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { PeminjamanRuanganService } from '../services/PeminjamanRuanganService';
+import { Trash2 } from 'lucide-react';
 
 const LogRuangan = () => {
   const [peminjamanData, setPeminjamanData] = useState([]);
@@ -7,28 +8,43 @@ const LogRuangan = () => {
   const [page, setPage] = useState(1);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
   const limit = 15;
 
-  useEffect(() => {
-    const fetchPeminjamanRuangan = async () => {
-      try {
-        setLoading(true);
-        const response = await PeminjamanRuanganService.getAllPeminjaman(page, limit);
-        if (response.success) {
-          setPeminjamanData(response.data);
-        }
-      } catch (err) {
-        setError('Gagal memuat data peminjaman ruangan');
-        console.error(err);
-      } finally {
-        setLoading(false);
+  const fetchPeminjamanRuangan = async () => {
+    try {
+      setLoading(true);
+      const response = await PeminjamanRuanganService.getAllPeminjaman(page, limit);
+      if (response.success) {
+        setPeminjamanData(response.data);
       }
-    };
+    } catch (err) {
+      setError('Gagal memuat data peminjaman ruangan');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchPeminjamanRuangan();
   }, [page]);
 
-  // Filter data based on search query
+  const handleDelete = async (id) => {
+    if (window.confirm('Apakah Anda yakin ingin menghapus peminjaman ini?')) {
+      try {
+        setIsDeleting(true);
+        await PeminjamanRuanganService.selesaiPeminjaman(id);
+        await fetchPeminjamanRuangan(); // Refresh the data
+      } catch (err) {
+        setError('Gagal menghapus peminjaman');
+        console.error(err);
+      } finally {
+        setIsDeleting(false);
+      }
+    }
+  };
+
   const filteredData = useMemo(() => {
     if (!searchQuery) return peminjamanData;
 
@@ -51,7 +67,7 @@ const LogRuangan = () => {
         return 'Invalid Date';
       }
       
-      return date.toLocaleDateString('id-ID',{
+      return date.toLocaleDateString('id-ID', {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
@@ -68,6 +84,9 @@ const LogRuangan = () => {
     const now = new Date();
     const start = new Date(startTime);
     const end = new Date(endTime);
+    
+    start.setHours(start.getHours() - 7);
+    end.setHours(end.getHours() - 7);
   
     if (start > now) {
       return "Akan Datang";  
@@ -111,16 +130,28 @@ const LogRuangan = () => {
         </div>
         <div className="col-span-2">
         <span className="text-gray-500 text-sm">Status:</span>
-        <span className={`inline-block px-2 py-1 rounded-full text-sm ${
-          getStatus(item.startTime, item.endTime) === 'Selesai' 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-yellow-100 text-yellow-800'
+        <span className={`inline-block px-2 py-1 rounded-full text-xs ${
+          getStatus(item.startTime, item.endTime) === 'Akan Datang'
+            ? 'bg-blue-100 text-blue-800'
+            : getStatus(item.startTime, item.endTime) === 'Dipakai'
+              ? 'bg-yellow-100 text-yellow-800'
+              : 'bg-green-100 text-green-800'
         }`}>
           {getStatus(item.startTime, item.endTime)}
         </span>
         </div>
         <div className="col-span-2 text-xs text-gray-400">
           ID: {item._id}
+        </div>
+        <div className="col-span-2 mt-4 flex justify-end">
+          <button
+            onClick={() => handleDelete(item._id)}
+            disabled={isDeleting}
+            className="px-3 py-2 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors duration-200 flex items-center gap-2"
+          >
+            <Trash2 size={16} />
+            {isDeleting ? 'Menghapus...' : 'Hapus'}
+          </button>
         </div>
       </div>
     </div>
@@ -199,6 +230,16 @@ const LogRuangan = () => {
                         {formatDate(item.endTime)}
                       </td>
                       <td className="py-2 px-4 text-gray-600">{item.keperluan || 'N/A'}</td>
+                      <td className="py-2 px-4">
+                        <button
+                          onClick={() => handleDelete(item._id)}
+                          disabled={isDeleting}
+                          className="px-3 py-2 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors duration-200 flex items-center gap-2"
+                        >
+                          <Trash2 size={16} />
+                          {isDeleting ? 'Menghapus...' : 'Hapus'}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
