@@ -76,7 +76,7 @@ const LoginPage = () => {
                         <input
                             type="text"
                             id="username"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm"
+                            className="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm  sm:text-sm"
                             placeholder="Username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
@@ -94,7 +94,7 @@ const LoginPage = () => {
                         <input
                             type="password"
                             id="password"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm"
+                            className="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm  sm:text-sm"
                             placeholder="Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}

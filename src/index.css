@@ -17,6 +17,10 @@
  -moz-osx-font-smoothing: grayscale;
 }
 
+input:focus {
+  outline: none;
+}
+
 a {
   font-weight: 500;
   /* color: #0CB9AC; */
