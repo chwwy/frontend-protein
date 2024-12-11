@@ -6,6 +6,7 @@ const FormPeminjamanRuangan = () => {
     const [ruanganList, setRuanganList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [minDateTime, setMinDateTime] = useState('');
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -15,6 +16,18 @@ const FormPeminjamanRuangan = () => {
         ruanganId: '',
         keperluan: ''
     });
+
+    useEffect(() => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+        setMinDateTime(formattedDateTime);
+      }, []);
 
     useEffect(() => {
         fetchRuangan();
@@ -58,8 +71,15 @@ const FormPeminjamanRuangan = () => {
             return false;
         }
 
+        const now = new Date();
         const start = new Date(formData.startTime);
         const end = new Date(formData.endTime);
+
+        if (start < now) {
+            setError('Waktu mulai tidak boleh kurang dari waktu sekarang');
+            return false;
+        }
+
         if (end <= start) {
             setError('Waktu selesai harus lebih besar dari waktu mulai');
             return false;
@@ -153,6 +173,7 @@ const FormPeminjamanRuangan = () => {
                                 name="startTime"
                                 value={formData.startTime}
                                 onChange={handleInputChange}
+                                min={minDateTime}
                                 className="border rounded w-full py-2 px-3"
                             />
                         </div>
@@ -163,6 +184,7 @@ const FormPeminjamanRuangan = () => {
                                 name="endTime"
                                 value={formData.endTime}
                                 onChange={handleInputChange}
+                                min={minDateTime}
                                 className="border rounded w-full py-2 px-3"
                             />
                         </div>

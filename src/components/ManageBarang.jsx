@@ -6,6 +6,7 @@ const ManageBarang = () => {
   const [showModal, setShowModal] = useState(false);
   const [scannedData, setScannedData] = useState(null);
   const [scanActive, setScanActive] = useState(false);
+  const [manualInput, setManualInput] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: "", type: "" });
   const [formData, setFormData] = useState({
     codeBarang: "",
@@ -55,6 +56,7 @@ const ManageBarang = () => {
       });
       setScannedData(null);
       setShowModal(false);
+      setManualInput(false);
       showNotification("Barang berhasil ditambahkan!", "success");
     } catch (error) {
       setShowModal(false);
@@ -68,7 +70,6 @@ const ManageBarang = () => {
 
   return (
     <main className="flex-1 lg:ml-[300px] p-4 transition-all duration-500 bg-gray-100">
-      {/* Notification Toast */}
       {notification.show && (
         <div className={`fixed top-4 right-4 z-50 rounded-lg py-3 px-6 text-white ${
           notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
@@ -79,24 +80,41 @@ const ManageBarang = () => {
 
       <div className="flex flex-col items-center p-4 md:p-8">
         <div className="w-full max-w-md mb-8">
-          {!scanActive ? (
-            <button
-              onClick={() => setScanActive(true)}
-              className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB] text-white"
-            >
-              Start Scan
-            </button>
-          ) : (
+          {!scanActive && !manualInput ? (
+            <div className="flex flex-col space-y-4">
+              <button
+                onClick={() => setScanActive(true)}
+                className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB] text-white"
+              >
+                Start Scan
+              </button>
+              <button
+                onClick={() => setManualInput(true)}
+                className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB40] text-[#1ABCCB]"
+              >
+                Input Manual
+              </button>
+            </div>
+          ) : scanActive ? (
             <div className="border rounded-lg overflow-hidden">
               <BarcodeScannerComponent
                 width={300}
                 height={300}
                 onUpdate={handleScan}
               />
+              <button
+                onClick={() => {
+                  setScanActive(false);
+                  setManualInput(true);
+                }}
+                className="w-full px-8 py-3 mt-4 rounded-md font-medium bg-[#1ABCCB40] text-[#1ABCCB]"
+              >
+                Switch to Manual Input
+              </button>
             </div>
-          )}
+          ) : null}
 
-          {scannedData && (
+          {scannedData && !manualInput && (
             <div className="mt-4 p-4 bg-white rounded-lg">
               <p className="font-medium">Scanned Barcode:</p>
               <p className="text-gray-600">{scannedData}</p>
@@ -120,10 +138,10 @@ const ManageBarang = () => {
                   name="codeBarang"
                   value={formData.codeBarang}
                   onChange={handleInputChange}
-                  placeholder="Scan barcode..."
+                  placeholder="Scan atau input kode barang..."
                   className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
                   required
-                  readOnly
+                  readOnly={!manualInput}
                 />
               </div>
               <div>
@@ -144,13 +162,15 @@ const ManageBarang = () => {
 
             <div className="flex justify-end space-x-4">
               <button
-                type="reset"
+                type="button"
                 onClick={() => {
                   setFormData({
                     codeBarang: "",
                     name: ""
                   });
                   setScannedData(null);
+                  setManualInput(false);
+                  setScanActive(false);
                 }}
                 className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB40] text-[#1ABCCB]"
               >

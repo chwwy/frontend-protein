@@ -5,7 +5,6 @@ const CreateRuangan = () => {
   const [showModal, setShowModal] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: "", type: "" });
   const [formData, setFormData] = useState({
-    ruanganId: "",
     unit: ""
   });
 
@@ -31,18 +30,18 @@ const CreateRuangan = () => {
 
   const handleConfirm = async () => {
     try {
-      await RuanganService.createRuangan(formData);
+      const response = await RuanganService.createRuangan(formData);
       
-      setFormData({
-        ruanganId: "",
-        unit: ""
-      });
+      setFormData({ unit: "" });
       setShowModal(false);
       showNotification("Ruangan berhasil ditambahkan!", "success");
+      
     } catch (error) {
       setShowModal(false);
       if (error.status === 400) {
         showNotification("Ruangan dengan ID tersebut sudah ada.", "error");
+      } else if (error.message.includes("Semua ID ruangan telah digunakan")) {
+        showNotification("Semua ID ruangan telah digunakan (001-999)", "error");
       } else {
         showNotification("Terjadi kesalahan.", "error");
       }
@@ -66,46 +65,28 @@ const CreateRuangan = () => {
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-3">
-                  ID Ruangan
-                </label>
-                <input
-                  type="text"
-                  name="ruanganId"
-                  value={formData.ruanganId}
-                  onChange={handleInputChange}
-                  placeholder="ID ruangan..."
-                  className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-3">
-                  Nama
-                </label>
-                <input
-                  type="text"
-                  name="unit"
-                  value={formData.unit}
-                  onChange={handleInputChange}
-                  placeholder="Nama ruangan..."
-                  className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+            <div>
+              <label className="block text-gray-700 text-sm font-bold mb-3">
+                Nama Ruangan
+              </label>
+              <input
+                type="text"
+                name="unit"
+                value={formData.unit}
+                onChange={handleInputChange}
+                placeholder="Nama ruangan..."
+                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <p className="mt-2 text-sm text-gray-500">
+                ID Ruangan akan digenerate otomatis oleh sistem (001-999)
+              </p>
             </div>
 
             <div className="flex justify-end space-x-4">
               <button
                 type="reset"
-                onClick={() => {
-                  setFormData({
-                    ruanganId: "",
-                    unit: ""
-                  });
-                }}
+                onClick={() => setFormData({ unit: "" })}
                 className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB40] text-[#1ABCCB]"
               >
                 Reset
@@ -113,7 +94,7 @@ const CreateRuangan = () => {
               <button
                 type="submit"
                 className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB] text-white"
-                disabled={!formData.ruanganId || !formData.unit}
+                disabled={!formData.unit}
               >
                 Submit
               </button>

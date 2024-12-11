@@ -8,6 +8,8 @@ const PengembalianBarang = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [scannedData, setScannedData] = useState(null);
   const [scanActive, setScanActive] = useState(false);
+  const [manualInput, setManualInput] = useState(false);
+  const [barcodeInput, setBarcodeInput] = useState("");
   const [peminjamanData, setPeminjamanData] = useState(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +21,7 @@ const PengembalianBarang = () => {
       const result = await PeminjamanBarangService.getPeminjamanByCode(codeBarang);
       if (result.success && result.data) {
         setPeminjamanData(result.data);
+        setScannedData(codeBarang);
       } else {
         throw new Error("Barang tidak dalam status peminjaman");
       }
@@ -34,7 +37,6 @@ const PengembalianBarang = () => {
   const handleScan = async (err, result) => {
     if (result) {
       setScanActive(false);
-      setScannedData(result.text);
       await checkPeminjamanExists(result.text);
     } else if (err) {
       console.error("Scan Error:", err);
@@ -42,10 +44,19 @@ const PengembalianBarang = () => {
     }
   };
 
+  const handleManualSubmit = async (e) => {
+    e.preventDefault();
+    if (!barcodeInput.trim()) {
+      setError("Silakan masukkan kode barang");
+      return;
+    }
+    await checkPeminjamanExists(barcodeInput);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!peminjamanData) {
-      setError("Silakan scan barang terlebih dahulu");
+      setError("Silakan scan atau input kode barang terlebih dahulu");
       return;
     }
     setShowModal(true);
@@ -61,15 +72,97 @@ const PengembalianBarang = () => {
       if (result.success) {
         setShowModal(false);
         setShowSuccessModal(true);
-        // Reset form
+        // Reset all states
         setScannedData(null);
         setPeminjamanData(null);
+        setBarcodeInput("");
+        setManualInput(false);
+        setScanActive(false);
       }
     } catch (err) {
       setError(err.message || "Terjadi kesalahan saat mengembalikan barang");
     } finally {
       setIsLoading(false);
       setShowModal(false);
+    }
+  };
+
+  const renderBarcodeInput = () => {
+    if (!scanActive && !manualInput) {
+      return (
+        <div className="flex flex-col space-y-4">
+          <button
+            onClick={() => setScanActive(true)}
+            disabled={isLoading}
+            className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB] text-white disabled:opacity-50"
+          >
+            {isLoading ? "Processing..." : "Start Scan"}
+          </button>
+          <button
+            onClick={() => setManualInput(true)}
+            disabled={isLoading}
+            className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB40] text-[#1ABCCB]"
+          >
+            Input Manual
+          </button>
+        </div>
+      );
+    }
+
+    if (scanActive) {
+      return (
+        <div className="space-y-4">
+          <div className="border rounded-lg overflow-hidden">
+            <BarcodeScannerComponent
+              width={300}
+              height={300}
+              onUpdate={handleScan}
+            />
+          </div>
+          <button
+            onClick={() => {
+              setScanActive(false);
+              setManualInput(true);
+            }}
+            className="w-full px-8 py-3 rounded-md font-medium bg-[#1ABCCB40] text-[#1ABCCB]"
+          >
+            Switch to Manual Input
+          </button>
+        </div>
+      );
+    }
+
+    if (manualInput) {
+      return (
+        <div className="space-y-4">
+          <form onSubmit={handleManualSubmit} className="flex space-x-2">
+            <input
+              type="text"
+              value={barcodeInput}
+              onChange={(e) => setBarcodeInput(e.target.value)}
+              placeholder="Masukkan kode barang..."
+              className="flex-1 p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+              required
+            />
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB] text-white disabled:opacity-50"
+            >
+              Check
+            </button>
+          </form>
+          <button
+            onClick={() => {
+              setManualInput(false);
+              setScanActive(true);
+            }}
+            className="w-full px-8 py-3 rounded-md font-medium bg-[#1ABCCB40] text-[#1ABCCB]"
+          >
+            Switch to Scanner
+          </button>
+        </div>
+      );
     }
   };
 
@@ -83,23 +176,7 @@ const PengembalianBarang = () => {
         )}
 
         <div className="w-full max-w-md mb-8">
-          {!scanActive ? (
-            <button
-              onClick={() => setScanActive(true)}
-              disabled={isLoading}
-              className="px-8 py-3 rounded-md font-medium bg-[#1ABCCB] text-white disabled:opacity-50"
-            >
-              {isLoading ? "Processing..." : "Start Scan"}
-            </button>
-          ) : (
-            <div className="border rounded-lg overflow-hidden">
-              <BarcodeScannerComponent
-                width={300}
-                height={300}
-                onUpdate={handleScan}
-              />
-            </div>
-          )}
+          {renderBarcodeInput()}
 
           {peminjamanData && (
             <div className="mt-4 p-4 bg-white rounded-lg">

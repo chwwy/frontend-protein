@@ -219,7 +219,6 @@ const LogRuangan = () => {
                             {getStatus(item.startTime, item.endTime)}
                         </span>
                     </td>
-                    <td className="py-2 px-4 text-gray-600">{item.name || 'N/A'}</td>
                       <td className="py-2 px-4 text-gray-600">{item.name || 'N/A'}</td>
                       <td className="py-2 px-4 text-gray-600">{item.email || 'N/A'}</td>
                       <td className="py-2 px-4 text-gray-600">{item.nomorTelepon || 'N/A'}</td>
