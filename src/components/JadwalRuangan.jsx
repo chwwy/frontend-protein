@@ -1,86 +1,95 @@
-  import React, { useState, useEffect, useMemo } from 'react';
-  import { PeminjamanRuanganService } from '../services/PeminjamanRuanganService';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ApproveService } from '../services/ApproveService';
 
-  const JadwalRuangan = () => {
-    const [peminjamanData, setPeminjamanData] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [page, setPage] = useState(1);
-    const [error, setError] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const limit = 15;
+const JadwalRuangan = () => {
+  const [peminjamanData, setPeminjamanData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const limit = 15;
 
-    useEffect(() => {
-      const fetchPeminjamanRuangan = async () => {
-        try {
-          setLoading(true);
-          const response = await PeminjamanRuanganService.getAllPeminjaman(page, limit);
-          if (response.success) {
-            const now = new Date();
-            const activeBookings = response.data.filter(booking => {
-              const endTime = new Date(booking.endTime);
-              endTime.setHours(endTime.getHours() - 7);
-              return endTime >= now;
-            });
-            setPeminjamanData(activeBookings);
-          }
-        } catch (err) {
-          setError('Gagal memuat data jadwal ruangan');
-          console.error(err);
-        } finally {
-          setLoading(false);
-        }
-      };
-    
-      fetchPeminjamanRuangan();
-    }, [page]);
-
-    const filteredData = useMemo(() => {
-      if (!searchQuery) return peminjamanData;
-
-      return peminjamanData.filter(item => 
-        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.keperluan?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.ruanganId?.unit?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.ruanganId?.ruanganId?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }, [peminjamanData, searchQuery]);
-
-    const formatDate = (dateString) => {
+  
+  useEffect(() => {
+    const fetchApprovedBookings = async () => {
       try {
-        const date = new Date(dateString);
-        date.setHours(date.getHours() - 7);
+        setLoading(true);
+        const response = await ApproveService.getAllApprovedBookings();
+        console.log('Response data:', response); // Add this debug log
         
-        if (isNaN(date.getTime())) {
-          return 'Invalid Date';
+        if (response.success) {
+          const now = new Date();
+          console.log('Current time:', now); // Add this debug log
+          
+          const activeBookings = response.data.filter(booking => {
+            const endTime = new Date(booking.endTime);
+            console.log('Booking end time:', endTime); // Add this debug log
+            console.log('Booking status:', booking.bookingStatus); // Add this debug log
+            
+            return new Date(booking.endTime) >= now && booking.bookingStatus === 'Active';
+          });
+          
+          console.log('Filtered bookings:', activeBookings); // Add this debug log
+          setPeminjamanData(activeBookings);
         }
-        
-        return date.toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        });
-      } catch {
+      } catch (err) {
+        console.error('Error details:', err); // Enhanced error logging
+        setError('Gagal memuat data jadwal ruangan');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchApprovedBookings();
+  }, [page]);
+
+  const filteredData = useMemo(() => {
+    if (!searchQuery) return peminjamanData;
+
+    return peminjamanData.filter(item => 
+      item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.keperluan?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.ruanganId?.unit?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.ruanganId?.ruanganId?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [peminjamanData, searchQuery]);
+
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      date.setHours(date.getHours());
+      
+      if (isNaN(date.getTime())) {
         return 'Invalid Date';
       }
-    };
-
-    const getStatus = (startTime, endTime) => {
-      const now = new Date();
-      const start = new Date(startTime);
-      const end = new Date(endTime);
       
-      start.setHours(start.getHours() - 7);
-      end.setHours(end.getHours() - 7);
+      return date.toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    } catch {
+      return 'Invalid Date';
+    }
+  };
+
+  const getStatus = (startTime, endTime) => {
+    const now = new Date();
+    const start = new Date(startTime);
+    const end = new Date(endTime);
     
-      if (now >= start && now <= end) {
-        return "Dipakai";      
-      } else {
-        return "Akan Datang";  
-      }
-    };
+    start.setHours(start.getHours());
+    end.setHours(end.getHours());
+  
+    if (now >= start && now <= end) {
+      return "Dipakai";      
+    } else {
+      return "Akan Datang";  
+    }
+  };
 
     const BookingCard = ({ item }) => (
       <div className="bg-white p-4 rounded-lg shadow-sm mb-4 border border-gray-100">

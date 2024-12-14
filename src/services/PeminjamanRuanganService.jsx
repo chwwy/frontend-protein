@@ -77,7 +77,7 @@ export const PeminjamanRuanganService = {
 
   updatePeminjaman: async (id, updateData) => {
     try {
-      const url = `${apiUrl}/peminjaman-ruangan/${id}`;
+      const url = `${apiUrl}/peminjaman-ruangan/status/${id}`;
       const response = await fetch(url, {
         method: 'PUT',
         headers: {

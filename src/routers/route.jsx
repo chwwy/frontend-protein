@@ -13,6 +13,7 @@ import ManageAdminView from "../views/ManageAdminView";
 import LogBarangView from "../views/LogBarangView";
 import LogRuanganView from "../views/LogRuanganView";
 import JadwalRuanganView from "../views/JadwalRuanganView";
+import ApprovalRuanganView from "../views/ApprovalRuanganView";
 
 
 const ScrollWrapper = ({ children }) => (
@@ -128,6 +129,14 @@ const router = createBrowserRouter([
         element: (
             <ScrollWrapper>
                 <JadwalRuanganView/>
+            </ScrollWrapper>
+        )
+    },
+    {
+        path: "/approval-ruangan",
+        element: (
+            <ScrollWrapper>
+                <ApprovalRuanganView/>
             </ScrollWrapper>
         )
     },

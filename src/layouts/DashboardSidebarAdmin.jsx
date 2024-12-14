@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import HomeLogo from '../assets/Logo Kemenkes.png';
 import { useAuth } from '../services/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { MdOutlineSpaceDashboard, MdOutlineLogin, MdOutlineInbox, MdInfoOutline } from "react-icons/md";
+import { MdOutlineSpaceDashboard, MdOutlineLogin, MdOutlineInbox, MdInfoOutline, MdOutlineMeetingRoom } from "react-icons/md";
 
 const DashboardSidebar = () => {
    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -38,6 +38,16 @@ const DashboardSidebar = () => {
                                 <MdOutlineSpaceDashboard size={24} className="text-gray-600" />
                                 <span className="ml-4 text-gray-700">
                                     <Link to="/dashboard-admin">Dashboard</Link>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div className="flex items-center p-2 cursor-pointer justify-between">
+                            <div className="flex items-center">
+                                <MdOutlineMeetingRoom size={24} className="text-gray-600" />
+                                <span className="ml-4 text-gray-700">
+                                    <Link to="/approval-ruangan">Approval Ruangan</Link>
                                 </span>
                             </div>
                         </div>

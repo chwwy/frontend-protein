@@ -5,7 +5,7 @@ import { RuanganService } from "../services/RuanganService";
 import { BarangService } from "../services/BarangService";
 import { PeminjamanBarangService } from "../services/PeminjamanBarangService";
 import { LoadingState, ErrorState } from '../components/LoadingErrorStates';
-import { PeminjamanRuanganService } from "../services/PeminjamanRuanganService";
+import { ApproveService } from "../services/ApproveService";
 
 const DashboardContent = () => {
   const [activeTab, setActiveTab] = useState("room");
@@ -68,11 +68,15 @@ const DashboardContent = () => {
             
             const peminjamanPromises = ruanganList.map(async (room) => {
               try {
-                const peminjamanResponse = await PeminjamanRuanganService.getPeminjamanByRuanganId(room._id);
-                if (peminjamanResponse.success && peminjamanResponse.data.length > 0) {
-                  const latestBooking = peminjamanResponse.data.reduce((latest, current) => {
-                    return new Date(current.startTime) > new Date(latest.startTime) ? current : latest;
-                  });
+                const approvedBookingsResponse = await ApproveService.getApprovedBookingsByRoom(room._id);
+                if (approvedBookingsResponse.success && approvedBookingsResponse.data.length > 0) {
+                  // Get the latest active booking
+                  const latestBooking = approvedBookingsResponse.data
+                    .filter(booking => booking.bookingStatus === 'Active')
+                    .reduce((latest, current) => {
+                      return new Date(current.startTime) > new Date(latest.startTime) ? current : latest;
+                    }, approvedBookingsResponse.data[0]);
+                    
                   return {
                     ruanganId: room._id,
                     booking: latestBooking
@@ -83,7 +87,7 @@ const DashboardContent = () => {
                   booking: null
                 };
               } catch (error) {
-                console.error(`Error fetching peminjaman for room ${room._id}:`, error);
+                console.error(`Error fetching approved bookings for room ${room._id}:`, error);
                 return {
                   ruanganId: room._id,
                   booking: null
@@ -99,7 +103,12 @@ const DashboardContent = () => {
 
             setPeminjamanRuanganData(peminjamanMap);
             setRuanganData(ruanganList);
-            const availableRooms = ruanganList.filter(room => room.status === "Tersedia").length;
+            
+            // Count available rooms (those without active bookings)
+            const availableRooms = ruanganList.filter(room => 
+              !peminjamanMap[room._id] || peminjamanMap[room._id].bookingStatus !== 'Active'
+            ).length;
+            
             setStats(prev => ({
               ...prev,
               ruanganTersedia: availableRooms
@@ -279,7 +288,7 @@ const DashboardContent = () => {
                         <td className="py-2 px-3 md:px-4 text-xs md:text-sm">{room.unit}</td>
                         <td className="py-2 px-3 md:px-4 text-xs md:text-sm">
                             {booking ? 
-                            `${formatDateHour(booking.startTime)} - ${formatDateHour(booking.endTime)}` 
+                            `Dipakai di jam ${formatDateHour(booking.startTime)} - ${formatDateHour(booking.endTime)}` 
                             : '-'}
                         </td>
                         <td className="py-2 px-3 md:px-4 text-xs md:text-sm">
